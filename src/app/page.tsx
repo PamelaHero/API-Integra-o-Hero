@@ -1,101 +1,254 @@
-import Image from "next/image";
+"use client";
+import { Form, Button, Input, Card, Table } from "antd";
+
+import usePage from "./usePage";
+import {
+  UserOutlined,
+  LockOutlined,
+  KeyOutlined,
+  CodeOutlined,
+  LinkOutlined,
+} from "@ant-design/icons";
+import { MigrationData } from "@/model/form.type";
+import { Guide } from "@/component/guide/guide";
+import { TableMigration } from "@/component/table/table";
 
 export default function Home() {
+  const {
+    onConnectVoltbras,
+    onConnectContaAzul,
+    loadingLogin,
+    handleAuthorizationContaAzul,
+    step,
+    queryParams
+  } = usePage();
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f0f2f5",
+        padding: "20px",
+      }}
+    >
+      {step === "step0" ? <Guide /> : null}
+      {step === "step1" ? (
+        <div
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#f0f2f5",
+          }}
+        >
+          <Card style={{ width: "100%", maxWidth: 400 }}>
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <h2 style={{ fontSize: "24px", fontWeight: "bold" }}>
+                Login na Conta Voltbras
+              </h2>
+            </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <Form
+              name="login_form"
+              initialValues={{ remember: true }}
+              onFinish={onConnectVoltbras}
+              size="large"
+            >
+              <Form.Item
+                name="email"
+                rules={[
+                  {
+                    required: true,
+                    message: "Por favor, insira seu email!",
+                  },
+                  {
+                    type: "email",
+                    message: "Email inválido!",
+                  },
+                ]}
+              >
+                <Input prefix={<UserOutlined />} placeholder="Email" />
+              </Form.Item>
+
+              <Form.Item
+                name="password"
+                rules={[
+                  {
+                    required: true,
+                    message: "Por favor, insira sua senha!",
+                  },
+                ]}
+              >
+                <Input.Password prefix={<LockOutlined />} placeholder="Senha" />
+              </Form.Item>
+
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  style={{ width: "100%" }}
+                >
+                  {loadingLogin ? "Acessando..." : "Entrar"}
+                </Button>
+              </Form.Item>
+            </Form>
+          </Card>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      ) : null}
+      {step === "step2" ? (
+        <div>
+          <Card style={{ width: "100%", maxWidth: 400 }}>
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <h2 style={{ fontSize: "24px", fontWeight: "bold" }}>
+                Autorização Conta Azul
+              </h2>
+              <p style={{ color: "#666" }}>
+                Insira seu Client ID para iniciar a autorização
+              </p>
+            </div>
+
+            <Form
+              name="auth_redirect_form"
+              onFinish={handleAuthorizationContaAzul}
+              layout="vertical"
+              size="large"
+            >
+              <Form.Item
+                name="clientId"
+                rules={[
+                  {
+                    required: true,
+                    message: "Por favor, insira o Client ID!",
+                  },
+                ]}
+              >
+                <Input
+                  prefix={<KeyOutlined />}
+                  placeholder="Digite seu Client ID"
+                />
+              </Form.Item>
+
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  style={{ width: "100%" }}
+                  size="large"
+                >
+                  Autorizar Acesso
+                </Button>
+              </Form.Item>
+            </Form>
+          </Card>
+        </div>
+      ) : null}
+      {step === "step3" ? (
+        <div>
+          <Card style={{ width: "100%", maxWidth: 500 }}>
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <h2 style={{ fontSize: "24px", fontWeight: "bold" }}>
+                Login Conta Azul
+              </h2>
+            </div>
+
+            <Form
+              name="conta_azul_form"
+              onFinish={onConnectContaAzul}
+              layout="vertical"
+              size="large"
+            >
+              <Form.Item
+                label="Client ID"
+                name="clientId"
+                rules={[
+                  {
+                    required: true,
+                    message: "Por favor, insira o Client ID!",
+                  },
+                ]}
+              >
+                <Input
+                  prefix={<KeyOutlined />}
+                  placeholder="Digite o Client ID"
+                  value={queryParams.clientId ?? ""}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Client Secret"
+                name="clientSecret"
+                rules={[
+                  {
+                    required: true,
+                    message: "Por favor, insira o Client Secret!",
+                  },
+                ]}
+              >
+                <Input.Password
+                  prefix={<KeyOutlined />}
+                  placeholder="Digite o Client Secret"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Redirect URL"
+                name="redirectUrl"
+                rules={[
+                  {
+                    required: true,
+                    message: "Por favor, insira a URL de redirecionamento!",
+                  },
+                  {
+                    type: "url",
+                    message: "Por favor, insira uma URL válida!",
+                  },
+                ]}
+              >
+                <Input
+                  prefix={<LinkOutlined />}
+                  placeholder="https://sua-url-de-redirecionamento.com"
+                  value={queryParams.currentUrl ?? ""}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Code"
+                name="code"
+                rules={[
+                  {
+                    required: true,
+                    message: "Por favor, insira o código de autorização!",
+                  },
+                ]}
+              >
+                <Input
+                  prefix={<CodeOutlined />}
+                  placeholder="Digite o código de autorização"
+                  value={queryParams.code ?? ""}
+                />
+              </Form.Item>
+
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  style={{ width: "100%" }}
+                >
+                  Autenticar
+                </Button>
+              </Form.Item>
+            </Form>
+          </Card>
+        </div>
+      ) : null}
+      {step === "integration" ? (
+        <div className="p-6">
+          <TableMigration />
+        </div>
+      ) : null}
     </div>
   );
 }
