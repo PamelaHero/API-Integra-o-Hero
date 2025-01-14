@@ -1,28 +1,23 @@
-import { getStatusTag } from "@/component/tag/tag";
 import { LOGIN_MEMBER } from "@/graphql/mutation/loginMember";
-import { DRIVERS } from "@/graphql/query/drivers";
 import { ContaAzulAuthType } from "@/model/auth.type";
-import { FieldType, MigrationData, MigrationStatus } from "@/model/form.type";
+import { FieldType} from "@/model/form.type";
 import HttpClient from "@/services/httpClient";
-import { PlayCircleOutlined, ClockCircleOutlined } from "@ant-design/icons";
-import { useMutation, useQuery } from "@apollo/client";
-import { Button, FormProps, Space } from "antd";
-import { ColumnsType } from "antd/es/table";
+import { useMutation } from "@apollo/client";
+import { FormProps } from "antd";
 import { useEffect, useState } from "react";
 
 type StepType = "step0" | "step1"|"step2"|"step3"|"integration"
 const usePage = () => {
   const [step, setStep] = useState<StepType>("step0")
-  const [clientId, setClientId] = useState("")
   const [queryParams, setQueryParams] = useState<{ code: string | null; state: string | null ; currentUrl: string | null; clientId: string | null  }>({
     code: null,
     state: null,
     clientId: null,
     currentUrl: null
   });
-  const [loginMember, { data , loading: loadingLogin, error }] = useMutation(LOGIN_MEMBER);
-
-  const client = new HttpClient("", null);
+  const [loginMember, { data , loading: loadingLogin }] = useMutation(LOGIN_MEMBER);
+  console.log(data)
+  const client = new HttpClient("");
 
   useEffect(()=>{
     if (typeof window !== "undefined") {
@@ -43,7 +38,7 @@ const usePage = () => {
   const SignInVoltbras = async (
     email: string,
     password: string
-  ): Promise<any> => {
+  ) => {
     try {
       const { data } = await loginMember({ variables: { data:{email, password}}});
       const token = data?.loginMember.authToken;
@@ -58,6 +53,7 @@ const usePage = () => {
     }
   };
 
+
   const SigninContaAzul = async ( username: string,
     password: string , currentUrl: string, code: string) => {
     try {
@@ -67,8 +63,13 @@ const usePage = () => {
         password,
         code
       });
+
+      console.log(response)
+      
       if (response.access_token) {
+        window.location.replace(queryParams.currentUrl!);
         localStorage.setItem("access_token", response.access_token);
+        localStorage.setItem("refresh_token", response.refresh_token);
         localStorage.setItem("step", "")
         setStep("integration")
       }
@@ -93,6 +94,10 @@ const usePage = () => {
   const onConnectVoltbras: FormProps<FieldType>["onFinish"] = async ({email, password}) => {
     await SignInVoltbras(email!, password!);
   };
+
+  const onFinishGuide = () => {
+    setStep("step1")
+  }
   
  
   return {
@@ -102,6 +107,7 @@ const usePage = () => {
     queryParams,
     loadingLogin,
     step,
+    onFinishGuide
   };
 };
 export default usePage;

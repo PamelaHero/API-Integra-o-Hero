@@ -1,5 +1,5 @@
 "use client";
-import { Form, Button, Input, Card, Table } from "antd";
+import { Form, Button, Input, Card } from "antd";
 
 import usePage from "./usePage";
 import {
@@ -9,7 +9,6 @@ import {
   CodeOutlined,
   LinkOutlined,
 } from "@ant-design/icons";
-import { MigrationData } from "@/model/form.type";
 import { Guide } from "@/component/guide/guide";
 import { TableMigration } from "@/component/table/table";
 
@@ -20,7 +19,8 @@ export default function Home() {
     loadingLogin,
     handleAuthorizationContaAzul,
     step,
-    queryParams
+    queryParams,
+    onFinishGuide,
   } = usePage();
   return (
     <div
@@ -33,7 +33,7 @@ export default function Home() {
         padding: "20px",
       }}
     >
-      {step === "step0" ? <Guide /> : null}
+      {step === "step0" ? <Guide handleStartStep={onFinishGuide} /> : null}
       {step === "step1" ? (
         <div
           style={{
@@ -163,6 +163,7 @@ export default function Home() {
               <Form.Item
                 label="Client ID"
                 name="clientId"
+                initialValue={queryParams.clientId} 
                 rules={[
                   {
                     required: true,

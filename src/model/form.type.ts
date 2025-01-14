@@ -7,7 +7,7 @@ export type FieldType = {
     redirectUrl?:string;
 };
 
-export type MigrationStatus = 'Rodando' | 'Concluida' | 'Erro';
+export type MigrationStatus = 'Parado' | 'Executando' | 'Concluida' | 'Erro';
 
 export type MigrationAction = 
   | 'Migrar Cadastro de Cliente'
@@ -15,7 +15,7 @@ export type MigrationAction =
   | 'Migrar Ordem de Serviço';
 
 export interface MigrationData {
-  key: string;
+  key: number;
   action: MigrationAction;
   sourceDb: string;
   targetDb: string;
