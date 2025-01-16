@@ -63,11 +63,9 @@ const usePage = () => {
         password,
         code
       });
-
-      console.log(response)
       
       if (response.access_token) {
-        window.location.replace(queryParams.currentUrl!);
+        // window.location.replace(queryParams.currentUrl!);
         localStorage.setItem("access_token", response.access_token);
         localStorage.setItem("refresh_token", response.refresh_token);
         localStorage.setItem("step", "")

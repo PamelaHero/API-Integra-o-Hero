@@ -14,6 +14,7 @@ interface Address {
 }
 
 export interface ICustomer {
+    id?: string;
     name: string;
     company_name: string;
     email: string;

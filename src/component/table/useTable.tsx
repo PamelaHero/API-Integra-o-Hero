@@ -9,93 +9,171 @@ import { IDrivers } from "@/model/drivers.type";
 import HttpClient from "@/services/httpClient";
 import { ISale } from "@/model/sales.type";
 import { ICustomer } from "@/model/customer.type";
+import { useEffect, useState } from "react";
+import moment from "moment";
 
 export const useTable = () => {
-  const { data } = useQuery(DRIVERS);
-  const client = new HttpClient("")
-  const driversData: IDrivers[] = data as IDrivers[]
-  console.log(driversData)
+  const { data, loading } = useQuery(DRIVERS);
+  const client = new HttpClient("");
+  const [key, setKey] = useState<number>(0);
+  const [status, setStatus] = useState<MigrationStatus>("Parado");
+  const [migrationData, setMigrationData] = useState<MigrationData[]>([
+    {
+      key: 1,
+      action: "Migrar Cadastro de Cliente",
+      sourceDb: "Voltbras",
+      targetDb: "Conta Azul",
+      status: status,
+      date: String(new Date()),
+    },
+    // {
+    //   key: 2,
+    //   action: "Migrar Ordem de Serviço",
+    //   sourceDb: "Voltbras",
+    //   targetDb: "Conta Azul",
+    //   status: status,
+    //   date: String(new Date()),
+    // },
+  ]);
 
+  useEffect(() => {
+    {
+      setMigrationData((prevData) =>
+        prevData.map((item) =>
+          item.key === key ? { ...item, status: status } : item
+        )
+      );
+    }
+  }, [status]);
 
-  const handleInstantMigration = async(record: MigrationData) => {
-    if(record.key == 1){
-      await handleMigrationSalesData()
+  const handleInstantMigration = async (record: MigrationData) => {
+    if (record.key == 1) {
+      await handleMigrationCustomersData();
     }
-    if(record.key == 2){
-      await handleMigrationCustomersData()
-    }
+    // if (record.key == 2) {
+    //   await handleMigrationSalesData();
+    // }
   };
 
   const handleRoutineMigration = (record: MigrationData) => {
     console.log(record);
   };
 
-  const handleMigrationSalesData = async() => {
-    const sales: ISale[] = driversData.map((drivers)=>{
-      return drivers.orders.map((order) => ({
-        customer_id: drivers.id,
+  // const handleMigrationSalesData = async (customer_id:string) => {
+  //   try {
+  //     setKey(2);
+  //     setStatus("Executando");
+  //     const driversData: IDrivers[] = data.drivers;
+  //   const sales: ISale[] = driversData.map((drivers) => {
+  //     return drivers.orders.map((order) => ({
+  //       customer_id: customer_id,
+  //       emission: order.capturedAt,
+  //       status: "COMMITTED",
+  //       seller_id: "",
+  //       services: [
+  //         {
+  //           value: order.capturedValue,
+  //           quantity: 1,
+  //           description: "",
+  //           service_id: "",
+  //         },
+  //       ],
+  //     }));
+  //   }) as unknown as ISale[];
+  //     sales.flat(2).map(async (sale: ISale) => {
+  //       await client.post("api/sales", sale);
+  //     });
+  //     setStatus("Concluida");
+  //   } catch (error) {
+  //     setStatus("Erro");
+  //     console.log(error);
+  //   }
+  // };
+
+  const handleMigrationSalesData = async (
+    customer_id: string,
+    document: string
+  ) => {
+    try {
+      debugger
+      const driversData: IDrivers[] = data.drivers;
+      const driverByDocument: IDrivers | undefined = driversData.find(
+        (driver) => driver.profile.CPF === document
+      );
+      const sales: ISale[] = driverByDocument?.orders.map((order) => ({
+        customer_id: customer_id,
         emission: order.capturedAt,
-        status: order.status,
+        status: "COMMITTED",
         seller_id: "",
         services: [
           {
             value: order.capturedValue,
             quantity: 1,
-            description: "",
-            service_id: ""
-          }
+            description: "test",
+            service_id: "d9e63bfc-3040-4cd7-85fb-c268278beedd",
+          },
         ],
-      })) 
-    }) as unknown as ISale[]
-   try {
-    await client.post("api/sales", sales)
-   } catch (error) {
-    console.log(error)
-   }
-  }
+        payment: {
+          type: "CASH",
+          method: "CREDIT_CARD",
+          installments: [{
+            due_date: order.capturedAt,
+            value: order.capturedValue,
+            number: 1
+          }]
+        }
+      })) as unknown as ISale[]
+      sales?.map(async (sale: ISale) => {
+        await client.post("api/sales", sale);
+      });
+    } catch (error) {
+      setStatus("Erro");
+      console.log(error);
+    }
+  };
+  const handleMigrationCustomersData = async () => {
+    try {
+      setKey(1);
+      setStatus("Executando");
+      const driversData: IDrivers[] = data.drivers;
+      const customers: ICustomer[] = driversData.map((drivers) => ({
+        name: `${drivers.profile.firstName} ${drivers.profile.lastName} `,
+        person_type: "NATURAL",
+        date_of_birth: drivers.profile.dateOfBirth
+          ? formatDate(drivers.profile.dateOfBirth)
+          : "",
+        identity_document: drivers.profile.identificationNumber,
+        mobile_phone: drivers.profile.cellPhone,
+        document: drivers.profile.CPF,
+        address: {
+          neighborhood: "",
+          number: "",
+          street: "",
+          zip_code: "",
+          complement: "",
+        },
+      })) as ICustomer[];
 
-  const handleMigrationCustomersData = async() => {
-    const customers: ICustomer[] = driversData.map((drivers)=>({
-      name: `${drivers.profile.firstName} ${drivers.profile.lastName} ` ,
-      email: drivers.profile.email,
-      address:{
-        number: drivers.addresses[0].streetNumber,
-        zip_code: drivers.addresses[0].postalCode,
-        neighborhood: drivers.addresses[0].neighborhood,
-        street: drivers.addresses[0].street,
-        complement: ""
-      },
-      date_of_birth: drivers.profile.dateOfBirth,
-      identity_document: drivers.profile.identificationNumber,
-      mobile_phone: drivers.profile.cellPhone,
-      document: drivers.profile.CPF
-    })) as ICustomer[]
-   try {
-    await client.post("api/customers", customers)
-   } catch (error) {
-    console.log(error)
-   }
-  }
-
-
-  const migrationData: MigrationData[] = [
-    {
-      key: 1,
-      action: "Migrar Cadastro de Cliente",
-      sourceDb: "Voltbras",
-      targetDb: "Conta Azul",
-      status: "Parado",
-      date:  String(new Date()),
-    },
-    {
-      key: 2,
-      action: "Migrar Ordem de Serviço",
-      sourceDb: "Voltbras",
-      targetDb: "Conta Azul",
-      status: "Parado",
-      date: String(new Date()),
-    },
-  ];
+      customers.map(async (customer) => {
+        const response = await client.post<ICustomer>(
+          "api/customers",
+          customer
+        );
+        handleMigrationSalesData(response.id!, response.document);
+      });
+      setStatus("Concluida");
+    } catch (error) {
+      setStatus("Erro");
+      console.log(error);
+    }
+  };
+  const formatDate = (dateString: string) => {
+    const date = moment(dateString, "YYYY/MM/DD");
+    if (!date.isValid()) {
+      return "";
+    }
+    return date.format("YYYY-MM-DDTHH:mm:ss");
+  };
 
   const columns: ColumnsType<MigrationData> = [
     {
@@ -153,6 +231,7 @@ export const useTable = () => {
   return {
     migrationData,
     columns,
-    handleMigrationSalesData
+    loading,
+    handleMigrationSalesData,
   };
 };

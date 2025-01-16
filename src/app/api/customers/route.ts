@@ -7,11 +7,16 @@ export async function POST(req: NextRequest) {
   try {
     const client = new HttpClient("https://api.contaazul.com/");
     const uri = `v1/customers`;
-    const authResponse = await client.post(
+    const response = await client.post(
       uri,
-      body
+      body,
+      {
+        headers:{
+          "Authorization" : req.headers.get("authorization")
+        }
+      }
     );
-    return new Response(JSON.stringify(authResponse), {
+    return new Response(JSON.stringify(response), {
       status: 201,
     });
   } catch (error) {
