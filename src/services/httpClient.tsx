@@ -16,11 +16,6 @@ class HttpClient {
         }
         return config;
       });
-  
-      // this.client.interceptors.response.use(
-      //   (response: AxiosResponse) => response,
-      //   // (error: AxiosError) => this.handleResponseError(error)
-      // );
     })
   }
 
