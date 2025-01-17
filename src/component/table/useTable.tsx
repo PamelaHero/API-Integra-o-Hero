@@ -26,14 +26,6 @@ export const useTable = () => {
       status: status,
       date: String(new Date()),
     },
-    // {
-    //   key: 2,
-    //   action: "Migrar Ordem de Serviço",
-    //   sourceDb: "Voltbras",
-    //   targetDb: "Conta Azul",
-    //   status: status,
-    //   date: String(new Date()),
-    // },
   ]);
 
   useEffect(() => {
