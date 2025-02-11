@@ -42,52 +42,17 @@ export const useTable = () => {
     if (record.key == 1) {
       await handleMigrationCustomersData();
     }
-    // if (record.key == 2) {
-    //   await handleMigrationSalesData();
-    // }
   };
 
   const handleRoutineMigration = (record: MigrationData) => {
     console.log(record);
   };
 
-  // const handleMigrationSalesData = async (customer_id:string) => {
-  //   try {
-  //     setKey(2);
-  //     setStatus("Executando");
-  //     const driversData: IDrivers[] = data.drivers;
-  //   const sales: ISale[] = driversData.map((drivers) => {
-  //     return drivers.orders.map((order) => ({
-  //       customer_id: customer_id,
-  //       emission: order.capturedAt,
-  //       status: "COMMITTED",
-  //       seller_id: "",
-  //       services: [
-  //         {
-  //           value: order.capturedValue,
-  //           quantity: 1,
-  //           description: "",
-  //           service_id: "",
-  //         },
-  //       ],
-  //     }));
-  //   }) as unknown as ISale[];
-  //     sales.flat(2).map(async (sale: ISale) => {
-  //       await client.post("api/sales", sale);
-  //     });
-  //     setStatus("Concluida");
-  //   } catch (error) {
-  //     setStatus("Erro");
-  //     console.log(error);
-  //   }
-  // };
-
   const handleMigrationSalesData = async (
     customer_id: string,
     document: string
   ) => {
     try {
-      debugger
       const driversData: IDrivers[] = data.drivers;
       const driverByDocument: IDrivers | undefined = driversData.find(
         (driver) => driver.profile.CPF === document
@@ -101,8 +66,8 @@ export const useTable = () => {
           {
             value: order.capturedValue,
             quantity: 1,
-            description: "test",
-            service_id: "d9e63bfc-3040-4cd7-85fb-c268278beedd",
+            description: "Carregamento de veículos elétricos",
+            service_id: "f894b9e5-5675-4414-954d-5d3beee5ab96",
           },
         ],
         payment: {
@@ -133,7 +98,7 @@ export const useTable = () => {
         person_type: "NATURAL",
         date_of_birth: drivers.profile.dateOfBirth
           ? formatDate(drivers.profile.dateOfBirth)
-          : "",
+          : null,
         identity_document: drivers.profile.identificationNumber,
         mobile_phone: drivers.profile.cellPhone,
         document: drivers.profile.CPF,
@@ -162,7 +127,7 @@ export const useTable = () => {
   const formatDate = (dateString: string) => {
     const date = moment(dateString, "YYYY/MM/DD");
     if (!date.isValid()) {
-      return "";
+      return null;
     }
     return date.format("YYYY-MM-DDTHH:mm:ss");
   };
