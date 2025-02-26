@@ -26,7 +26,7 @@ export interface ICustomer {
     state_registration_number: string;
     state_registration_type: 'NO_CONTRIBUTOR' | 'CONTRIBUTOR';
     city_registration_number: string;
-    date_of_birth: string;  // Use ISO 8601 string format
+    date_of_birth: string | null;  // Use ISO 8601 string format
     notes?: string;  // Optional
     contacts: Contact[];
     address: Address;
