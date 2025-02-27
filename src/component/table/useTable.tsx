@@ -41,7 +41,10 @@ export const useTable = () => {
     }
   };
 
-  const handleMigrationSalesData = async (customer_id: string, document: string) => {
+  const handleMigrationSalesData = async (
+    customer_id: string,
+    document: string
+  ) => {
     try {
       const driversData: IDrivers[] = data.drivers;
 
@@ -49,53 +52,69 @@ export const useTable = () => {
         (driver) => driver.profile.CPF === document
       );
 
-      const sales: ISale[] = driverByDocument?.orders.map((order) => ({
-        customer_id: customer_id,
-        emission: order.capturedAt,
-        status: "COMMITTED",
-        seller_id: "",
-        services: [
-          {
-            value: order.capturedValue,
-            quantity: 1,
-            description: "Carregamento de veículos elétricos",
-            service_id: "f894b9e5-5675-4414-954d-5d3beee5ab96",
-          },
-        ],
-        payment: {
-          type: "CASH",
-          method: "CREDIT_CARD",
-          installments: [
-            {
-              due_date: order.capturedAt,
-              value: order.capturedValue,
-              number: 1,
+      const sales: ISale[] = driverByDocument?.orders.map((order) => {
+        if (order.status === 'Captured') {
+          return {
+            customer_id: customer_id,
+            emission: order.capturedAt,
+            status: "COMMITTED",
+            seller_id: "",
+            services: [
+              {
+                value: order.capturedValue,
+                quantity: 1,
+                description: "Carregamento de veículos elétricos",
+                service_id: "f894b9e5-5675-4414-954d-5d3beee5ab96",
+              },
+            ],
+            payment: {
+              type: "CASH",
+              method: "CREDIT_CARD",
+              installments: [
+                {
+                  due_date: order.capturedAt,
+                  value: order.capturedValue,
+                  number: 1,
+                },
+              ],
             },
-          ],
-        },
-      })) as ISale[];
-
-      await Promise.all(sales.map(async (sale: ISale) => {
-        if (sale.emission) {
-          const res: ISale[] = await client.get(`api/sales?date=${sale.emission}&customer_id=${customer_id}`);
-          if (res.length === 0) {
-            await client.post("api/sales", sale);
-          }
+          };
         }
-      }));
+      }) as ISale[];
+
+      await Promise.all(
+        sales.map(async (sale: ISale) => {
+          if (sale.emission) {
+            const res: ISale[] = await client.get(
+              `api/sales?date=${sale.emission}&customer_id=${customer_id}`
+            );
+            if (res.length === 0) {
+              await client.post("api/sales", sale);
+            }
+          }
+        })
+      );
     } catch (error) {
       setStatus("Erro");
-      showErrorNotification("Erro na Migração de Vendas", "Ocorreu um erro ao migrar os dados de vendas.");
+      showErrorNotification(
+        "Erro na Migração de Vendas",
+        "Ocorreu um erro ao migrar os dados de vendas."
+      );
       console.error("Error migrating sales data:", error);
     }
   };
 
   const verifyUserCreated = async (document: string) => {
     try {
-      const response = await client.get<ICustomer[]>(`api/customers?document=${document}`);
+      const response = await client.get<ICustomer[]>(
+        `api/customers?document=${document}`
+      );
       return response;
     } catch (error) {
-      showErrorNotification("Erro na Verificação de Usuário", "Ocorreu um erro ao verificar o usuário.");
+      showErrorNotification(
+        "Erro na Verificação de Usuário",
+        "Ocorreu um erro ao verificar o usuário."
+      );
       console.error("Error verifying user:", error);
       throw error; // Re-throw the error to stop further execution
     }
@@ -104,29 +123,33 @@ export const useTable = () => {
   const createCustomerFromDriver = (driver: IDrivers): ICustomer => ({
     name: `${driver.profile.firstName} ${driver.profile.lastName}`,
     person_type: "NATURAL",
-    date_of_birth: driver.profile.dateOfBirth ? formatDate(driver.profile.dateOfBirth) : null,
+    date_of_birth: driver.profile.dateOfBirth
+      ? formatDate(driver.profile.dateOfBirth)
+      : null,
     identity_document: driver.profile.identificationNumber,
     mobile_phone: driver.profile.cellPhone,
     document: driver.profile.CPF,
-    email: driver.profile.email ?? '',
-    contacts: [{
-      name: driver.profile.firstName ?? '',
-      business_phone: driver.profile.cellPhone ?? '',
-      email: driver.profile.email ?? '',
-      job_title: ''
-    }],
+    email: driver.profile.email ?? "",
+    contacts: [
+      {
+        name: driver.profile.firstName ?? "",
+        business_phone: driver.profile.cellPhone ?? "",
+        email: driver.profile.email ?? "",
+        job_title: "",
+      },
+    ],
     address: {
-      neighborhood: driver.addresses[0]?.neighborhood ?? '',
-      number: driver.addresses[0]?.streetNumber ?? '',
-      street: driver.addresses[0]?.street ?? '',
-      zip_code: driver.addresses[0]?.postalCode ?? '',
-      complement: '',
+      neighborhood: driver.addresses[0]?.neighborhood ?? "",
+      number: driver.addresses[0]?.streetNumber ?? "",
+      street: driver.addresses[0]?.street ?? "",
+      zip_code: driver.addresses[0]?.postalCode ?? "",
+      complement: "",
     },
     company_name: "",
     business_phone: "",
     state_registration_number: "",
     state_registration_type: "NO_CONTRIBUTOR",
-    city_registration_number: ""
+    city_registration_number: "",
   });
 
   const handleMigrationCustomersData = async () => {
@@ -135,23 +158,31 @@ export const useTable = () => {
       const driversData: IDrivers[] = data.drivers;
       const customers: ICustomer[] = driversData.map(createCustomerFromDriver);
 
-      await Promise.all(customers.map(async (customer) => {
-        if (customer.document) {
-          const cleanedDocument = customer.document.replace(/[.-]/g, '');
-          const verify = await verifyUserCreated(cleanedDocument);
-          if (verify.length > 0) {
-            await handleMigrationSalesData(verify[0].id!, customer.document);
-          } else {
-            const response = await client.post<ICustomer>("api/customers", customer);
-            await handleMigrationSalesData(response.id!, response.document);
+      await Promise.all(
+        customers.map(async (customer) => {
+          if (customer.document) {
+            const cleanedDocument = customer.document.replace(/[.-]/g, "");
+            const verify = await verifyUserCreated(cleanedDocument);
+            if (verify.length > 0) {
+              await handleMigrationSalesData(verify[0].id!, customer.document);
+            } else {
+              const response = await client.post<ICustomer>(
+                "api/customers",
+                customer
+              );
+              await handleMigrationSalesData(response.id!, response.document);
+            }
           }
-        }
-      }));
+        })
+      );
 
       setStatus("Concluida");
     } catch (error) {
       setStatus("Erro");
-      showErrorNotification("Erro na Migração de Clientes", "Ocorreu um erro ao migrar os dados de clientes.");
+      showErrorNotification(
+        "Erro na Migração de Clientes",
+        "Ocorreu um erro ao migrar os dados de clientes."
+      );
       console.error("Error migrating customers data:", error);
     }
   };
