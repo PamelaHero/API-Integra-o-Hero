@@ -140,7 +140,7 @@ export const useTable = () => {
     ],
     address: {
       neighborhood: driver.addresses[0]?.neighborhood ?? "",
-      number: driver.addresses[0]?.streetNumber ?? "",
+      number: driver.addresses[0]?.streetNumber ?? "SN",
       street: driver.addresses[0]?.street ?? "",
       zip_code: driver.addresses[0]?.postalCode ?? "",
       complement: "",
