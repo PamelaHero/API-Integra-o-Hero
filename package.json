@@ -13,6 +13,7 @@
     "@apollo/client": "^3.12.4",
     "@apollo/experimental-nextjs-app-support": "^0.11.7",
     "antd": "^5.23.0",
+    "date-fns": "^4.1.0",
     "graphql": "^16.10.0",
     "moment": "^2.30.1",
     "next": "15.1.2",
