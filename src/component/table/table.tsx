@@ -1,18 +1,19 @@
 import { MigrationData } from "@/model/form.type"
-import { Table } from "antd"
+import { Skeleton, Table } from "antd"
 import { useTable } from "./useTable"
-import { Suspense } from "react"
 
 export const TableMigration = () => {
     const {columns, migrationData, loading} = useTable()
+
+    if (loading) {
+      return <Skeleton active paragraph={{ rows: 6 }} />
+    }
     return (
-      <Suspense fallback={loading}>
           <Table<MigrationData>
             columns={columns}
-            dataSource={migrationData}
+            dataSource={[migrationData]}
             className="shadow-lg rounded-lg"
             pagination={false}
         />
-      </Suspense>
     )
 }

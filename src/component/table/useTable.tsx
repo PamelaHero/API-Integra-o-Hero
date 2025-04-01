@@ -1,6 +1,6 @@
 import { MigrationData, MigrationStatus } from "@/model/form.type";
 import { PlayCircleOutlined } from "@ant-design/icons";
-import { Button, Space, notification } from "antd";
+import { Button, Space, Spin, notification } from "antd";
 import { getStatusTag } from "../tag/tag";
 import { ColumnsType } from "antd/es/table";
 import { useQuery } from "@apollo/client";
@@ -16,7 +16,7 @@ export const useTable = () => {
   const { data, loading } = useQuery(DRIVERS);
   const client = new HttpClient("");
   const [status, setStatus] = useState<MigrationStatus>("Parado");
-  const [migrationData] = useState<MigrationData[]>([
+  const [migrationData, setMigrationData] = useState<MigrationData>(
     {
       key: 1,
       action: "Migrar Cadastro de Cliente",
@@ -25,8 +25,11 @@ export const useTable = () => {
       status: status,
       date: new Date().toISOString(),
     },
-  ]);
+  );
 
+  const updateMigrationStatus = ( newStatus: MigrationStatus) => {
+    setMigrationData(prevState => ({...prevState , status: newStatus}))
+  };
   const showErrorNotification = (message: string, description?: string) => {
     notification.error({
       message: message,
@@ -53,7 +56,7 @@ export const useTable = () => {
       );
 
       const sales: ISale[] = driverByDocument?.orders.map((order) => {
-        if (order.status === 'Captured') {
+        if (order.status === "Captured") {
           return {
             customer_id: customer_id,
             emission: order.capturedAt,
@@ -115,6 +118,7 @@ export const useTable = () => {
         "Erro na Verificação de Usuário",
         "Ocorreu um erro ao verificar o usuário."
       );
+      updateMigrationStatus("Erro")
       console.error("Error verifying user:", error);
       throw error; // Re-throw the error to stop further execution
     }
@@ -140,7 +144,10 @@ export const useTable = () => {
     ],
     address: {
       neighborhood: driver.addresses[0]?.neighborhood ?? "",
-      number: driver.addresses[0]?.streetNumber ?? "SN",
+      number:
+        driver.addresses[0]?.streetNumber === ""
+          ? "SN"
+          : driver.addresses[0]?.streetNumber ?? "SN",
       street: driver.addresses[0]?.street ?? "",
       zip_code: driver.addresses[0]?.postalCode ?? "",
       complement: "",
@@ -152,9 +159,10 @@ export const useTable = () => {
     city_registration_number: "",
   });
 
+
   const handleMigrationCustomersData = async () => {
     try {
-      setStatus("Executando");
+      updateMigrationStatus("Executando");
       const driversData: IDrivers[] = data.drivers;
       const customers: ICustomer[] = driversData.map(createCustomerFromDriver);
 
@@ -176,9 +184,9 @@ export const useTable = () => {
         })
       );
 
-      setStatus("Concluida");
+      updateMigrationStatus("Concluida");
     } catch (error) {
-      setStatus("Erro");
+      updateMigrationStatus("Erro");
       showErrorNotification(
         "Erro na Migração de Clientes",
         "Ocorreu um erro ao migrar os dados de clientes."
@@ -194,6 +202,7 @@ export const useTable = () => {
     }
     return format(date, "yyyy-MM-dd'T'HH:mm:ss");
   };
+
 
   const columns: ColumnsType<MigrationData> = [
     {
@@ -216,8 +225,14 @@ export const useTable = () => {
       title: "Status da Migração",
       dataIndex: "status",
       key: "status",
-      render: (status: MigrationStatus) => getStatusTag(status),
-    },
+      render: (status: MigrationStatus) => (
+        <div className="flex items-center gap-2">
+          {getStatusTag(status)}
+          {status === 'processing' && (
+            <Spin size="small" />
+          )}
+        </div>
+    )},
     {
       title: "Data da Migração",
       dataIndex: "date",

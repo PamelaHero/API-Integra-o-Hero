@@ -7,7 +7,7 @@ export type FieldType = {
     redirectUrl?:string;
 };
 
-export type MigrationStatus = 'Parado' | 'Executando' | 'Concluida' | 'Erro';
+export type MigrationStatus = 'Parado' | 'Executando' | 'Concluida' | 'Erro' | "processing";
 
 export type MigrationAction = 
   | 'Migrar Cadastro de Cliente'
