@@ -228,7 +228,7 @@ export const useTable = () => {
       render: (status: MigrationStatus) => (
         <div className="flex items-center gap-2">
           {getStatusTag(status)}
-          {status === 'processing' && (
+          {status === 'Executando' && (
             <Spin size="small" />
           )}
         </div>
