@@ -5,6 +5,7 @@ export type FieldType = {
     clientSecret?:string;
     code?: string;
     redirectUrl?:string;
+    cpo?:string;
 };
 
 export type MigrationStatus = 'Parado' | 'Executando' | 'Concluida' | 'Erro' ;

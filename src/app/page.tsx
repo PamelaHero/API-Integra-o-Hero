@@ -8,6 +8,7 @@ import {
   KeyOutlined,
   CodeOutlined,
   LinkOutlined,
+  AuditOutlined,
 } from "@ant-design/icons";
 import { Guide } from "@/component/guide/guide";
 import { TableMigration } from "@/component/table/table";
@@ -84,7 +85,17 @@ export default function Home() {
               >
                 <Input.Password prefix={<LockOutlined />} placeholder="Senha" />
               </Form.Item>
-
+              <Form.Item
+                name="CPO"
+                rules={[
+                  {
+                    required: true,
+                    message: "Por favor, insira seu cpo!",
+                  }
+                ]}
+              >
+                <Input prefix={<AuditOutlined />} placeholder="CPO" />
+              </Form.Item>
               <Form.Item>
                 <Button
                   type="primary"

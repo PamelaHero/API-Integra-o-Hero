@@ -36,6 +36,7 @@ interface Order {
     currencyType: string;
     createdAt: string;
     capturedAt: string;
+    cpo: string;
 }
 
 export interface IDrivers {

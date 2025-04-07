@@ -40,6 +40,7 @@ export const DRIVERS = gql`
         currencyType
         createdAt
         capturedAt
+        cpo
       }
     }
   }

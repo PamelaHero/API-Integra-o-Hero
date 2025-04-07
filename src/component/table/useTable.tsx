@@ -1,6 +1,6 @@
 import { MigrationData, MigrationStatus } from "@/model/form.type";
 import { PlayCircleOutlined } from "@ant-design/icons";
-import { Button, Space, Spin, notification } from "antd";
+import { Alert, Button, Skeleton, Space, Spin, notification } from "antd";
 import { getStatusTag } from "../tag/tag";
 import { ColumnsType } from "antd/es/table";
 import { useQuery } from "@apollo/client";
@@ -11,9 +11,11 @@ import { ISale } from "@/model/sales.type";
 import { ICustomer } from "@/model/customer.type";
 import { useState } from "react";
 import { format, isValid, parse } from "date-fns";
+import { useRouter } from "next/navigation";
 
-export const useTable = () => {
-  const { data, loading } = useQuery(DRIVERS);
+export const useTable = ( cpoFilter: string) => {
+  const navigation = useRouter();
+  const { data, loading, error } = useQuery<{ drivers:IDrivers[] }>(DRIVERS);
   const client = new HttpClient("");
   const [status, setStatus] = useState<MigrationStatus>("Parado");
   const [migrationData, setMigrationData] = useState<MigrationData>(
@@ -26,6 +28,46 @@ export const useTable = () => {
       date: new Date().toISOString(),
     },
   );
+
+  if (error) {
+    return (
+      <div className={`p-4`}>
+        <Alert
+          message="Error"
+          description={
+            <div className="space-y-2">
+              Houve um erro ao consultar informação na base Voltbrás
+            </div>
+          }
+          type="error"
+          showIcon
+          className="mb-4"
+        />
+        <Button
+          type="primary"
+          onClick={() => {
+            navigation.refresh();
+          }}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  const filteredDrivers: IDrivers[] = data?.drivers?.map(driver => ({
+    ...driver,
+    orders: cpoFilter 
+      ? driver.orders?.filter(order => order?.cpo === cpoFilter) || []
+      : driver.orders || []
+  })) || [];
+  
+  if (loading) {
+    return <Skeleton active paragraph={{ rows: 6 }} />;
+  }
+
+
 
   const updateMigrationStatus = ( newStatus: MigrationStatus) => {
     setMigrationData(prevState => ({...prevState , status: newStatus}))
@@ -49,7 +91,7 @@ export const useTable = () => {
     document: string
   ) => {
     try {
-      const driversData: IDrivers[] = data.drivers;
+      const driversData: IDrivers[] = filteredDrivers ?? [];
 
       const driverByDocument = driversData.find(
         (driver) => driver.profile.CPF === document
@@ -163,7 +205,7 @@ export const useTable = () => {
   const handleMigrationCustomersData = async () => {
     try {
       updateMigrationStatus("Executando");
-      const driversData: IDrivers[] = data.drivers;
+      const driversData: IDrivers[] = filteredDrivers ?? []
       const customers: ICustomer[] = driversData.map(createCustomerFromDriver);
 
       await Promise.all(
