@@ -3,13 +3,14 @@ import { ContaAzulAuthType } from "@/model/auth.type";
 import { FieldType } from "@/model/form.type";
 import HttpClient from "@/services/httpClient";
 import { useMutation } from "@apollo/client";
-import { FormProps, notification } from "antd"; // Import notification
+import { Form, FormProps, notification } from "antd"; // Import notification
 import { useEffect, useState } from "react";
 
 type StepType = "step0" | "step1" | "step2" | "step3" | "integration";
 
 const usePage = () => {
   const [step, setStep] = useState<StepType>("step0");
+  const [form] = Form.useForm<FieldType>();
   const [queryParams, setQueryParams] = useState<{
     code: string | null;
     state: string | null;
@@ -136,6 +137,7 @@ const usePage = () => {
     loadingLogin,
     step,
     onFinishGuide,
+    form
   };
 };
 

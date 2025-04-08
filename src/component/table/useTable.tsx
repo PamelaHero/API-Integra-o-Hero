@@ -1,6 +1,6 @@
 import { MigrationData, MigrationStatus } from "@/model/form.type";
 import { PlayCircleOutlined } from "@ant-design/icons";
-import { Alert, Button, Skeleton, Space, Spin, notification } from "antd";
+import { Button, Space, Spin, notification } from "antd";
 import { getStatusTag } from "../tag/tag";
 import { ColumnsType } from "antd/es/table";
 import { useQuery } from "@apollo/client";
@@ -11,10 +11,9 @@ import { ISale } from "@/model/sales.type";
 import { ICustomer } from "@/model/customer.type";
 import { useState } from "react";
 import { format, isValid, parse } from "date-fns";
-import { useRouter } from "next/navigation";
 
-export const useTable = ( cpoFilter: string) => {
-  const navigation = useRouter();
+export const useTable = (cpo: string) => {
+
   const { data, loading, error } = useQuery<{ drivers:IDrivers[] }>(DRIVERS);
   const client = new HttpClient("");
   const [status, setStatus] = useState<MigrationStatus>("Parado");
@@ -29,43 +28,15 @@ export const useTable = ( cpoFilter: string) => {
     },
   );
 
-  if (error) {
-    return (
-      <div className={`p-4`}>
-        <Alert
-          message="Error"
-          description={
-            <div className="space-y-2">
-              Houve um erro ao consultar informação na base Voltbrás
-            </div>
-          }
-          type="error"
-          showIcon
-          className="mb-4"
-        />
-        <Button
-          type="primary"
-          onClick={() => {
-            navigation.refresh();
-          }}
-          className="bg-blue-600 hover:bg-blue-700"
-        >
-          Retry
-        </Button>
-      </div>
-    );
-  }
 
   const filteredDrivers: IDrivers[] = data?.drivers?.map(driver => ({
     ...driver,
-    orders: cpoFilter 
-      ? driver.orders?.filter(order => order?.cpo === cpoFilter) || []
+    orders: cpo 
+      ? driver.orders?.filter(order => order?.cpo === cpo) || []
       : driver.orders || []
   })) || [];
   
-  if (loading) {
-    return <Skeleton active paragraph={{ rows: 6 }} />;
-  }
+
 
 
 
@@ -302,7 +273,8 @@ export const useTable = ( cpoFilter: string) => {
   return {
     migrationData,
     columns,
-    loading,
     handleMigrationSalesData,
+    error, 
+    loading
   };
 };

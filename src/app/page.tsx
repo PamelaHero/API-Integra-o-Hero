@@ -22,6 +22,7 @@ export default function Home() {
     step,
     queryParams,
     onFinishGuide,
+    form
   } = usePage();
   return (
     <div
@@ -54,7 +55,7 @@ export default function Home() {
 
             <Form
               name="login_form"
-              initialValues={{ remember: true }}
+              initialValues={{ remember: true  }}
               onFinish={onConnectVoltbras}
               size="large"
             >
@@ -258,7 +259,7 @@ export default function Home() {
       ) : null}
       {step === "integration" ? (
         <div className="p-6">
-          <TableMigration />
+          <TableMigration cpo={form.getFieldValue("cpo")} />
         </div>
       ) : null}
     </div>
