@@ -12,7 +12,7 @@ import { ICustomer } from "@/model/customer.type";
 import { useState } from "react";
 import { format, isValid, parse } from "date-fns";
 
-export const useTable = (cpo: string) => {
+export const useTable = () => {
 
   const { data, loading, error } = useQuery<{ drivers:IDrivers[] }>(DRIVERS);
   const client = new HttpClient("");
@@ -29,12 +29,12 @@ export const useTable = (cpo: string) => {
   );
 
 
-  const filteredDrivers: IDrivers[] = data?.drivers?.map(driver => ({
-    ...driver,
-    orders: cpo 
-      ? driver.orders?.filter(order => order?.cpo === cpo) || []
-      : driver.orders || []
-  })) || [];
+  // const filteredDrivers: IDrivers[] = data?.drivers?.map(driver => ({
+  //   ...driver,
+  //   orders: cpo 
+  //     ? driver.orders?.filter(order => order?.cpo === cpo) || []
+  //     : driver.orders || []
+  // })) || [];
   
 
 
@@ -62,7 +62,7 @@ export const useTable = (cpo: string) => {
     document: string
   ) => {
     try {
-      const driversData: IDrivers[] = filteredDrivers ?? [];
+      const driversData: IDrivers[] = data?.drivers ?? [];
 
       const driverByDocument = driversData.find(
         (driver) => driver.profile.CPF === document
@@ -176,7 +176,7 @@ export const useTable = (cpo: string) => {
   const handleMigrationCustomersData = async () => {
     try {
       updateMigrationStatus("Executando");
-      const driversData: IDrivers[] = filteredDrivers ?? []
+      const driversData: IDrivers[] = data?.drivers ?? []
       const customers: ICustomer[] = driversData.map(createCustomerFromDriver);
 
       await Promise.all(

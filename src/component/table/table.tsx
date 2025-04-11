@@ -4,8 +4,8 @@ import { useTable } from "./useTable";
 import { useRouter } from "next/navigation";
 
 
-export const TableMigration = ({ cpo }: { cpo: string }) => {
-  const { columns, migrationData, error, loading } = useTable(cpo);
+export const TableMigration = () => {
+  const { columns, migrationData, error, loading } = useTable();
   const navigation = useRouter();
   if (error) {
     return (

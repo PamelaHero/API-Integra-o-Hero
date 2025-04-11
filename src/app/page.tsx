@@ -8,7 +8,7 @@ import {
   KeyOutlined,
   CodeOutlined,
   LinkOutlined,
-  AuditOutlined,
+  // AuditOutlined,
 } from "@ant-design/icons";
 import { Guide } from "@/component/guide/guide";
 import { TableMigration } from "@/component/table/table";
@@ -22,7 +22,7 @@ export default function Home() {
     step,
     queryParams,
     onFinishGuide,
-    form
+    // form
   } = usePage();
   return (
     <div
@@ -86,7 +86,7 @@ export default function Home() {
               >
                 <Input.Password prefix={<LockOutlined />} placeholder="Senha" />
               </Form.Item>
-              <Form.Item
+              {/* <Form.Item
                 name="CPO"
                 rules={[
                   {
@@ -96,7 +96,7 @@ export default function Home() {
                 ]}
               >
                 <Input prefix={<AuditOutlined />} placeholder="CPO" />
-              </Form.Item>
+              </Form.Item> */}
               <Form.Item>
                 <Button
                   type="primary"
@@ -259,7 +259,7 @@ export default function Home() {
       ) : null}
       {step === "integration" ? (
         <div className="p-6">
-          <TableMigration cpo={form.getFieldValue("cpo")} />
+          <TableMigration />
         </div>
       ) : null}
     </div>
